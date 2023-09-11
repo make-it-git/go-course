@@ -102,6 +102,14 @@ func main() {
 	// Slice [15 5 30], Length: 3, Capacity: 4
 	fmt.Printf("Slice: %v, Length: %d, Capacity: %d\n", mySlice, len(mySlice), cap(mySlice))
 
+	for _, v := range myFavSlice {
+		fmt.Println(v)
+		// I
+		// like
+		// learning
+		// Go
+	}
+
 	// func copy(dst, src []T) int
 	s1 := []string{"a", "b", "c", "d"}
 	s2 := make([]string, len(s1))
@@ -123,6 +131,7 @@ func main() {
 	fmt.Println(s3) // [a b c d e]
 	// func append(slice []Type, elems ...Type) []Type
 
+	// maps
 	var m map[string]int
 	fmt.Println(m, m == nil) // map[] true
 	// m["test"] = 1 // panic: assignment to entry in nil map
@@ -131,6 +140,7 @@ func main() {
 	m2["test"] = 1
 	fmt.Println(m2) // map[test:1]
 
+	// map literal
 	var m3 = map[string]int{
 		"hi": 100,
 	}

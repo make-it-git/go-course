@@ -23,6 +23,7 @@ func main() {
 	mutexExample()
 	rwMutexExample()
 	syncMapExample()
+	raceExample()
 }
 
 func waitGroupExample() {
@@ -134,3 +135,40 @@ func syncMapExample() {
 
 	wg.Wait()
 }
+
+// go run -race main.go
+func raceExample() {
+	c := make(chan bool)
+	m := make(map[string]string)
+	go func() {
+		m["1"] = "a" // First conflicting access.
+		c <- true
+	}()
+	m["2"] = "b" // Second conflicting access.
+	<-c
+	for k, v := range m {
+		fmt.Println(k, v)
+	}
+}
+
+//WARNING: DATA RACE
+//Write at 0x00c00040c030 by goroutine 220:
+//  runtime.mapaccess2_faststr()
+//      /opt/homebrew/Cellar/go/1.20.5/libexec/src/runtime/map_faststr.go:108 +0x42c
+//  main.raceExample.func1()
+//      /Users/valikhachev/Desktop/go-course/04.4-sync/main.go:144 +0x48
+//
+//Previous write at 0x00c00040c030 by main goroutine:
+//  runtime.mapaccess2_faststr()
+//      /opt/homebrew/Cellar/go/1.20.5/libexec/src/runtime/map_faststr.go:108 +0x42c
+//  main.raceExample()
+//      /Users/valikhachev/Desktop/go-course/04.4-sync/main.go:147 +0xfc
+//  main.main()
+//      /Users/valikhachev/Desktop/go-course/04.4-sync/main.go:26 +0x34
+//
+//Goroutine 220 (running) created at:
+//  main.raceExample()
+//      /Users/valikhachev/Desktop/go-course/04.4-sync/main.go:143 +0xe0
+//  main.main()
+//      /Users/valikhachev/Desktop/go-course/04.4-sync/main.go:26 +0x34
+//==================
