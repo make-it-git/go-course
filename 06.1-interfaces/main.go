@@ -19,6 +19,7 @@ type SampleInterface interface {
 
 type OtherInterface interface {
 	SampleInterface
+	OtherMethod() string
 }
 
 type BidirectionalCommunication struct {
@@ -86,11 +87,15 @@ func main() {
 	var sample SampleInterface
 	fmt.Println(sample, sample == nil) // <nil> true
 
+	var sampleInstance *SampleStruct = nil
+	sample = sampleInstance
+	fmt.Println(sample, sample == nil) // <nil> false
+
 	var x io.ReadWriter = &BidirectionalCommunication{}
 	_, _ = x.Read([]byte{})
 	_, _ = x.Write([]byte{})
 
-	var sampleInstance *SampleStruct = nil
-	sample = sampleInstance
-	fmt.Println(sample, sample == nil) // <nil> false
+	// var y OtherInterface
+	// y.Method() // panic: runtime error: invalid memory address or nil pointer dereference
+	// y.OtherMethod()
 }

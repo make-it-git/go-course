@@ -19,6 +19,8 @@ func main() {
 	defer handlePanic() // recovered from error stop
 	unrecoverableError()
 
+	// 0
+	// recovered from error stop
 	// 3
 	// 2
 	// 1

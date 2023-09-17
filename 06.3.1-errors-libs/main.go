@@ -43,7 +43,7 @@ func main() {
 	}
 
 	fmt.Println(result)
-	// 2 errors occurred:
+	// 3 errors occurred:
 	//        * error 1
 	//        * error 2
 	//        * custom error
