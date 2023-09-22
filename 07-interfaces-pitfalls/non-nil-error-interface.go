@@ -19,6 +19,7 @@ func (e *CustomError) Error() string {
 
 func nonNilErrorInterface() {
 	var typed *CustomError = nil
+	// var err error = (*CustomError)(nil)
 	var err error = typed
 	fmt.Println(typed == nil) // true
 	if err != nil {

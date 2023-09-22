@@ -31,7 +31,7 @@ func do(r Request) {
 	fmt.Println("done handling request", r.Payload)
 }
 
-// Note: random output
+// Note: random output order
 
 // handle request success 1
 // done handling request success 1
