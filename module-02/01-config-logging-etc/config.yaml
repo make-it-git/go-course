@@ -1,0 +1,7 @@
+server_addr: "10.0.0.1"
+server_port: "8080"
+middlewares:
+  - "csrf"
+  - "ip-blacklist"
+  - "rate-limiter"
+secret: "config-secret"

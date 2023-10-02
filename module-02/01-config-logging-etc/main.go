@@ -34,8 +34,28 @@ func init() {
 func main() {
 	flag.Parse()
 
-	// ***********
-	// environment
+	readEnvSimple()
+
+	useFlagsSimple()
+
+	loggingExamples()
+
+	yamlConfigExample()
+
+	configFromEnv()
+
+	configFromEnvAndFromFile()
+
+	// metrics
+
+	// handle signals
+
+	// fast startup/graceful shutdown
+
+	// toggles
+}
+
+func readEnvSimple() {
 	listenPortStr := os.Getenv("PORT")
 	if listenPortStr == "" {
 		log.Fatal("No 'PORT' variable set")
@@ -50,7 +70,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
 
+func useFlagsSimple() {
 	// ***********
 	// flags
 	// ${BINARY_NAME} --help
@@ -60,11 +82,13 @@ func main() {
 	//  -port int
 	//        Port to listen (default 80)
 
-	// ***********
-	// logging
+	// ${BINARY_NAME} -addr 10.10.10.10
+	fmt.Println(listenAddrFlag) // 10.10.10.10
+}
+
+func loggingExamples() {
 	log.Println("test") // 2023/01/30 10:57:42 test
 
-	// ***********
 	// since 1.21
 	slog.Info("test", "param", "value") // 2023/01/30 11:03:53 INFO test param=value
 
@@ -95,8 +119,9 @@ func main() {
 	contextLogger.WithField("hello", "world").Info("Log with more fields")
 	// {"hello":"world","level":"info","msg":"Log with more fields","param":"value","time":"2023-01-30T11:11:35+04:00","traceId":"5ff1e41d-3236-4898-b92d-d98cd520eb2f","userID":12345}
 
-	// ***********
-	// viper
+}
+
+func yamlConfigExample() {
 	viper.SetConfigType("yaml")
 	var yamlExample = []byte(`
 server:
@@ -117,7 +142,7 @@ apiKey: "secret"
 		ApiKey      string   `yaml:"secret"`
 	}
 
-	err = viper.ReadConfig(bytes.NewBuffer(yamlExample))
+	err := viper.ReadConfig(bytes.NewBuffer(yamlExample))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -127,6 +152,10 @@ apiKey: "secret"
 		log.Fatal(err)
 	}
 	fmt.Println(config) // {{127.0.0.1 8080} [csrf rate-limiter] secret}
+}
+
+func configFromEnv() {
+	v := viper.New()
 
 	type envConfig struct {
 		ServerAddr  string   `mapstructure:"SERVER_ADDR"`
@@ -134,24 +163,53 @@ apiKey: "secret"
 		Middlewares []string `mapstructure:"MIDDLEWARES"`
 		ApiKey      string   `mapstructure:"SECRET"`
 	}
-	viper.SetConfigType("env")
-	viper.SetEnvPrefix("MY_SERVICE")
-	viper.SetDefault("SECRET", "")
-	viper.SetDefault("MIDDLEWARES", []string{})
-	viper.SetDefault("SERVER_ADDR", "127.0.0.1")
-	viper.AutomaticEnv()
-	configFromEnv := envConfig{}
-	err = viper.Unmarshal(&configFromEnv)
+
+	// don't confuse
+	// viper.SetConfigType("env")
+
+	v.SetConfigType("env")
+	v.SetEnvPrefix("MY_SERVICE")
+
+	v.SetDefault("SECRET", "")
+	v.SetDefault("MIDDLEWARES", []string{})
+	v.SetDefault("SERVER_ADDR", "127.0.0.1")
+	v.SetDefault("SERVER_PORT", "9090")
+
+	v.AutomaticEnv()
+	cfg := envConfig{}
+	err := v.Unmarshal(&cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(configFromEnv) // {10.0.0.1 0 [rate-limiter ip-blacklist] env-secret}
+	// MY_SERVICE_SERVER_ADDR="10.0.0.1" MY_SERVICE_SERVER_PORT="9090" MY_SERVICE_SECRET=env-secret MY_SERVICE_MIDDLEWARES="rate-limiter ip-blacklist" go run main.go
+	fmt.Println(cfg) // {10.0.0.1 9090 [rate-limiter ip-blacklist] env-secret}
+}
 
-	// metrics
+func configFromEnvAndFromFile() {
+	v := viper.New()
 
-	// handle signals
+	type envAndFileConfig struct {
+		ServerAddr  string   `mapstructure:"SERVER_ADDR" yaml:"server_addr"`
+		ServerPort  int      `mapstructure:"SERVER_PORT" yaml:"server_port"`
+		Middlewares []string `mapstructure:"MIDDLEWARES" yaml:"middlewares"`
+		ApiKey      string   `mapstructure:"SECRET" yaml:"secret"`
+	}
 
-	// fast startup/graceful shutdown
+	v.SetConfigType("yaml")
+	v.SetConfigFile("config.yaml")
+	err := v.ReadInConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	// toggles
+	v.AutomaticEnv()
+	cfg := envAndFileConfig{}
+	err = v.Unmarshal(&cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(cfg) // {10.0.0.1 8080 [csrf ip-blacklist rate-limiter] config-secret}
+
+	// SECRET=other SERVER_ADDR=1.2.3.4 go run main.go
+	// {1.2.3.4 8080 [csrf ip-blacklist rate-limiter] other}
 }
