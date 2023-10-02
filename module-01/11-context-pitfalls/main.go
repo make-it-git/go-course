@@ -14,7 +14,7 @@ type otherParam string
 
 func main() {
 	// context values overriding
-	ctx := context.Background()
+	ctx := context.Background() // root of all derived contexts
 	ctx = context.WithValue(ctx, "param", 10)
 	fmt.Println(ctx.Value("param")) // 10
 	ctx = context.WithValue(ctx, "param", 20)
@@ -27,10 +27,6 @@ func main() {
 	ctx2 = context.WithValue(ctx2, param2, 20)
 	fmt.Println(ctx2.Value(param1)) // 10
 	fmt.Println(ctx2.Value(param2)) // 20
-
-	// explicit context value usage
-	// addRequestID()
-	// useRequestID()
 
 	// advisory cancellation
 	ctx3, cancel := context.WithCancel(context.Background())
@@ -50,6 +46,10 @@ func main() {
 	myMethodImplicit(ctx4)
 	// better
 	myMethodExplicit(ctx4, 123)
+
+	// explicit context value usage
+	// addRequestID()
+	// useRequestID()
 
 	// context cancel propagation
 	ctx5, cancel5 := context.WithCancel(context.Background())
@@ -116,15 +116,15 @@ func networkRequest() {
 	}
 
 	rsp, err := client.Do(req)
-	if err != nil {
-		fmt.Println(err)
-		return
+	if rsp != nil {
+		defer rsp.Body.Close()
 	}
-	defer rsp.Body.Close()
 	if e, ok := err.(net.Error); ok && e.Timeout() {
 		fmt.Printf("Do request timeout: %s\n", err)
+		return
 	} else if err != nil {
 		fmt.Printf("Cannot do request: %s\n", err)
+		return
 	}
 
 	body, err := io.ReadAll(rsp.Body)

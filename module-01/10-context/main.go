@@ -11,6 +11,7 @@ import (
 )
 
 // preemptive/cooperative multitasking
+// request scoped variables/cancellations/timeouts
 
 func main() {
 	ctxBackground := context.Background()
@@ -51,7 +52,7 @@ func handleRequest(w http.ResponseWriter, req *http.Request) {
 	// Handling request cancellation
 	case <-ctx.Done():
 		err := ctx.Err()
-		fmt.Println("Error:", err)
+		fmt.Println("Error:", err) // Error: context canceled
 	}
 
 	fmt.Println("Handler complete")
