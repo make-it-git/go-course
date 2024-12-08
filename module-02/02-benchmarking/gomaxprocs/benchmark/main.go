@@ -11,22 +11,21 @@ func simulateSyscall(t time.Duration) {
 	time.Sleep(t)
 }
 
-// go test -bench=. -benchtime=5s
 func main() {
 	numCpuCores := []int{1, 2, 4, 8, 16, 32, 64, 128}
 	durations := []time.Duration{
-		time.Second, time.Second * 5, time.Millisecond,
+		time.Second, time.Second * 3, time.Millisecond,
 	}
 	for _, duration := range durations {
+		fmt.Println("----------------")
 		fmt.Printf("DURATION=%v\n", duration)
 		for _, procs := range numCpuCores {
-			fmt.Printf("GOMAXPROCS=%d\n", procs)
+			fmt.Printf("GOMAXPROCS=%d, ", procs)
 			start := time.Now()
 			run(procs, duration)
 			end := time.Now()
 			fmt.Println(end.Sub(start))
 		}
-		fmt.Println("****")
 	}
 
 }
