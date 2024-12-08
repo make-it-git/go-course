@@ -49,4 +49,12 @@ func main() {
 	runtime.GC()
 	fmt.Println("GC completed")
 	printMemStats()
+
+	fmt.Println("Reallocate arena")
+	arena := NewArena(1024*1024*100, 1024)
+	_ = arena
+	printMemStats()
+	runtime.GC()
+	printMemStats()
+	runtime.KeepAlive(arena)
 }

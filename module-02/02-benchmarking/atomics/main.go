@@ -38,7 +38,7 @@ func pointersAtomic() {
 	ptr.Store(&Data{Value: 0}) // Initialize pointer
 
 	wg := sync.WaitGroup{}
-	// Goroutine 1: Increment the value 10 times
+	// Goroutine 1: Increment the value N times
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -48,7 +48,7 @@ func pointersAtomic() {
 		}
 	}()
 
-	// Goroutine 2: Increment the value 10 times
+	// Goroutine 2: Increment the value N times
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -69,7 +69,7 @@ func pointersNonAtomic() {
 
 	wg := sync.WaitGroup{}
 
-	// Goroutine 1: Increment the value 10 times
+	// Goroutine 1: Increment the value N times
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -79,7 +79,7 @@ func pointersNonAtomic() {
 		}
 	}()
 
-	// Goroutine 2: Increment the value 10 times
+	// Goroutine 2: Increment the value N times
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
